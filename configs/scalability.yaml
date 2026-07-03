@@ -1,0 +1,26 @@
+# Scalability config -- offline, sweeps dataset size to study scaling behaviour.
+mode: scalability
+outdir: results/scalability
+k: 10
+warmup: 5
+per_query: true
+
+data:
+  source: random
+  n_query: 200
+  dim: 384
+  n_clusters: 64
+  seed: 42
+
+embedding:
+  backend: synthetic
+
+methods: [flat, ivf]  # hnsw in progress, added once complete
+
+params:
+  ivf:
+    nlist: 128
+    nprobe: 8
+
+scalability:
+  sizes: [1000, 5000, 20000, 50000, 100000]

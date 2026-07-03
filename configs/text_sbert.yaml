@@ -1,0 +1,30 @@
+# Production config -- real semantic retrieval with Sentence-BERT.
+#
+# Requires:  pip install sentence-transformers   (one-time model download)
+# To use your own data, set data.path to a text file (one document per line).
+# If data.path is omitted, the built-in sample corpus is used.
+mode: single
+outdir: results/sbert
+k: 10
+warmup: 3
+per_query: true
+
+data:
+  source: text
+  path: data/headlines.txt   # produced by prepare_headlines.py (see README)
+  max_chars: 280             # max characters per segment
+  target_size: 20000         # number of documents to benchmark
+  n_query: 200               # held-out queries
+  seed: 42
+
+embedding:
+  backend: sbert
+  model_name: all-MiniLM-L6-v2
+  batch_size: 64
+
+methods: [flat, ivf]  # hnsw in progress, added once complete
+
+params:
+  ivf:
+    nlist: 100
+    nprobe: 8
