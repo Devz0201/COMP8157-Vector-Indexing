@@ -1,0 +1,45 @@
+# Production config -- real semantic retrieval with Sentence-BERT.
+#
+# Requires:  pip install sentence-transformers   (one-time model download)
+# To use your own data, set data.path to a text file (one document per line).
+# If data.path is omitted, the built-in sample corpus is used.
+mode: single
+outdir: results/sbert
+k: 10
+warmup: 3
+per_query: true
+
+data:
+  source: text
+  path: data/headlines.txt   # produced by prepare_headlines.py (see README)
+  max_chars: 280             # max characters per segment
+  target_size: 20000         # number of documents to benchmark
+  n_query: 200               # held-out queries
+  seed: 42
+
+embedding:
+  backend: sbert
+  model_name: all-MiniLM-L6-v2
+  batch_size: 64
+
+methods: [flat, ivf, hnsw]
+
+params:
+  ivf:
+    nlist: 100
+    # nprobe is set from the tuning sweep (tune_parameters.py), not guessed.
+    # On real Sentence-BERT embeddings of news headlines the clusters overlap far
+    # more than they do on the synthetic vectors used for the scalability sweep,
+    # so the nprobe=8 that reaches recall 1.000 there only reaches 0.839 here.
+    # The sweep's IVF curve on this corpus:
+    #   nprobe   1     2     4     8     16    32    64    100
+    #   recall   0.505 0.627 0.745 0.839 0.910 0.963 0.994 1.000
+    # 32 is the first value clearing the 0.95 acceptance threshold (AC-3), at
+    # roughly a third of Flat's latency. Raising it further buys little.
+    nprobe: 32
+  hnsw:
+    M: 32
+    ef_construction: 80
+    # ef_search=64 already gives recall 0.997 on this corpus; the sweep shows
+    # 128 and 256 add latency for a further 0.002.
+    ef_search: 64

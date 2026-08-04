@@ -1,0 +1,9 @@
+# Sample text corpus -- one document/sentence per line.
+# Replace this file with your own data, or point data.path at any .txt file.
+# (The framework also ships with a richer built-in corpus in data_ingestion.py;
+# this file simply demonstrates the expected format.)
+
+Vector databases store high-dimensional embeddings for similarity search.
+Semantic search retrieves documents by meaning rather than exact keywords.
+Retrieval-augmented generation grounds language models in external knowledge.
+Approximate nearest neighbour search scales similarity retrieval to billions of vectors.

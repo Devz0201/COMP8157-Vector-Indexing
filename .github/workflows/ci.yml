@@ -1,0 +1,77 @@
+# Continuous integration for the Vector Index Benchmarking Framework.
+#
+# The point of this workflow is the project's own reproducibility claim: if the
+# framework only runs on the machine of whoever wrote the module, the claim that
+# a result can be reproduced anywhere is not worth much. So every push builds
+# the environment from scratch on a clean runner, runs the test suite, and
+# executes a real (small) benchmark end to end -- including the database write
+# and read-back -- on three Python versions and on both Linux and Windows.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: tests (${{ matrix.os }}, py${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        # sentence-transformers is deliberately not installed here: it pulls in
+        # torch and needs a model download, and the offline backends exercise
+        # the same indexing, query, and evaluation code paths.
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest ruff
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Run tests
+        run: pytest -v
+
+      - name: Run a real benchmark end to end
+        # The offline scalability config with the sweep cut down to two sizes:
+        # enough to prove the full pipeline and the database write work on a
+        # clean machine, fast enough to run on every push.
+        run: |
+          python run_benchmark.py --config configs/ci_smoke.yaml --notes "CI ${{ github.sha }}"
+
+      - name: Read the results back out of the database
+        # If this prints rows, then the run was recorded, the schema applied,
+        # and the views resolve -- the whole persistence path verified without
+        # a separate integration test.
+        run: |
+          python db_cli.py runs
+          python db_cli.py results --run latest --sort latency
+          python db_cli.py logs --run latest --level INFO --tail 10
+
+      - name: Upload the generated artefacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-output-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: |
+            results/ci/
+            db/vecbench_results.db
+          if-no-files-found: warn

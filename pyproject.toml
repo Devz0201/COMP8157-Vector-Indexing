@@ -1,0 +1,75 @@
+# Project metadata and tool configuration for the Vector Index Benchmarking
+# Framework (COMP.8157 Advanced Database Topics, 2026S -- Group 4).
+#
+# The framework is run from this folder rather than installed into site-packages
+# (see README, "Running the framework"), because a run needs the configs/, data/,
+# db/, and results/ directories that sit next to the code. This file therefore
+# serves two purposes: it is the single place where the project's metadata and
+# dependency set are declared, and it configures pytest and ruff so the test and
+# lint commands behave identically on every member's machine and in CI.
+
+[project]
+name = "vecbench"
+version = "1.1.0"
+description = "Workload-consistent benchmarking of Flat, IVF, and HNSW vector indexes for AI search systems"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Devu Babu Sheeja",      email = "babushe@uwindsor.ca" },
+    { name = "Ashwin Senthur Pandian", email = "senthur@uwindsor.ca" },
+    { name = "Rishi G. Patel",         email = "patel3zc@uwindsor.ca" },
+    { name = "Nikhil Goud Nathi",      email = "nathin@uwindsor.ca" },
+]
+keywords = ["vector-index", "faiss", "hnsw", "ivf", "ann", "benchmark", "sentence-bert"]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Topic :: Database :: Database Engines/Servers",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+
+dependencies = [
+    "faiss-cpu>=1.8.0",
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "matplotlib>=3.7",
+    "scikit-learn>=1.3",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+# The real Sentence-BERT path. Separate because it pulls in torch and triggers a
+# one-time model download, and the framework is deliberately runnable without it.
+sbert = ["sentence-transformers>=2.2"]
+# Everything needed to run the test suite and the linter.
+dev = ["pytest>=7.4", "ruff>=0.4"]
+
+[project.urls]
+Repository = "https://github.com/Devz0201/COMP8157-Vector-Indexing"
+Documentation = "https://github.com/Devz0201/COMP8157-Vector-Indexing/tree/main/docs"
+"Project board" = "https://github.com/users/Devz0201/projects/1"
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Tests import `src.*` the same way the CLI scripts do, so the project root has
+# to be importable. This is what makes `pytest` work from a bare checkout with
+# nothing installed.
+pythonpath = ["."]
+addopts = "-q"
+
+# ---------------------------------------------------------------------------
+# ruff (lint)
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+# E402: the CLI scripts set HF environment variables and sys.path before their
+# imports on purpose, so module-level-import-not-at-top is expected there.
+ignore = ["E402"]

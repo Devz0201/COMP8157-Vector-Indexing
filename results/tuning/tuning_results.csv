@@ -1,0 +1,15 @@
+method,knob,value,recall,latency_ms
+IVF,nprobe,1,0.5055,0.04048
+IVF,nprobe,2,0.6275,0.06694
+IVF,nprobe,4,0.745,0.12584
+IVF,nprobe,8,0.839,0.24381
+IVF,nprobe,16,0.91,0.49066
+IVF,nprobe,32,0.9625,0.72647
+IVF,nprobe,64,0.994,1.72355
+IVF,nprobe,100,1.0,2.53954
+HNSW,efSearch,8,0.977,0.09156
+HNSW,efSearch,16,0.9865,0.14243
+HNSW,efSearch,32,0.9905,0.25462
+HNSW,efSearch,64,0.997,0.34475
+HNSW,efSearch,128,0.9985,0.4264
+HNSW,efSearch,256,0.999,0.7658

@@ -1,0 +1,38 @@
+{
+  // GitHub Codespaces / VS Code Dev Container definition.
+  //
+  // This is the "run it without installing anything locally" path for graders:
+  // opening the repository in a Codespace builds this container, installs the
+  // dependencies, and leaves a terminal in the project folder ready to run a
+  // benchmark. Nothing needs to be configured by hand.
+  "name": "vecbench (COMP.8157 Group 4)",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11-bookworm",
+
+  "features": {
+    // sqlite3 so the results database can also be opened directly, not only
+    // through db_cli.py.
+    "ghcr.io/devcontainers/features/sqlite:1": {}
+  },
+
+  "postCreateCommand": "pip install --upgrade pip && pip install -r requirements.txt && pip install pytest ruff && python db_cli.py init",
+
+  // Greet whoever opens the Codespace with the commands they are most likely
+  // to want, so the first run does not require reading the README first.
+  "postAttachCommand": "echo '' && echo 'vecbench ready. Try:' && echo '  python run_benchmark.py --config configs/scalability.yaml' && echo '  python db_cli.py summary' && echo ''",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "qwtel.sqlite-viewer"
+      ],
+      "settings": {
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": ["tests"]
+      }
+    }
+  },
+
+  "remoteUser": "vscode"
+}

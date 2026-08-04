@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# The raw dataset CSV: 61 MB, and fetch_dataset.py can retrieve it on demand.
+# The prepared sample (data/headlines.txt) IS committed -- see data/DATASET.md.
+abcnews-date-text.csv
+abcnews-date-text.tab
+
+# Scratch output only. The published result sets under results/ ARE committed,
+# because they are part of the deliverable and every figure in the report is
+# generated from them. (The previous `results/*/` rule excluded all of them,
+# which would have left the repository without its own evidence.)
+results/ci/
+results/_*/
+configs/_*.yaml

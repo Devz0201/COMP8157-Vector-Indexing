@@ -1,0 +1,35 @@
+# CI smoke config -- the scalability sweep, cut down so it runs on every push.
+#
+# Same code path as configs/scalability.yaml (synthetic vectors, no downloads,
+# all three methods), just two small sizes instead of five large ones. Its job
+# is to prove the pipeline and the database write still work on a clean machine,
+# not to produce publishable numbers.
+mode: scalability
+outdir: results/ci
+k: 10
+warmup: 2
+per_query: true
+
+data:
+  source: random
+  n_query: 50
+  dim: 128
+  n_clusters: 16
+  seed: 42
+
+embedding:
+  backend: synthetic
+
+methods: [flat, ivf, hnsw]
+
+params:
+  ivf:
+    nlist: 32
+    nprobe: 8
+  hnsw:
+    M: 16
+    ef_construction: 40
+    ef_search: 64
+
+scalability:
+  sizes: [1000, 5000]
